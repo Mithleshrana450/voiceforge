@@ -1,6 +1,10 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:: Always run from this script directory (supports UNC paths via temporary drive mapping)
+pushd "%~dp0"
+set "ROOT=%CD%"
+
 :: ============================================================
 ::  VoiceForge — One-command setup & launcher (Windows)
 :: ============================================================
@@ -124,27 +128,23 @@ cd ..
 :: ── Install frontend dependencies ────────────────────────────
 echo [5/7] Installing frontend packages...
 cd frontend
-if not exist "node_modules" (
-    call npm install --silent
-    if %errorlevel% neq 0 (
-        echo [ERROR] npm install failed in frontend
-        pause
-        exit /b 1
-    )
-) else (
-    echo [OK] Already installed, skipping
+call npm install --silent
+if %errorlevel% neq 0 (
+    echo [ERROR] npm install failed in frontend
+    pause
+    exit /b 1
 )
 cd ..
 
 :: ── Launch servers ───────────────────────────────────────────
 echo [6/7] Starting backend server...
-start "VoiceForge Backend" cmd /k "cd /d %cd%\backend && echo Backend starting on http://localhost:3001 && node server.js"
+start "VoiceForge Backend" cmd /k "cd /d !ROOT!\backend && echo Backend starting on http://localhost:3001 && node server.js"
 
 echo Waiting for backend to start...
 timeout /t 3 /nobreak >nul
 
 echo [7/7] Starting frontend...
-start "VoiceForge Frontend" cmd /k "cd /d %cd%\frontend && echo Frontend starting on http://localhost:5173 && npm run dev"
+start "VoiceForge Frontend" cmd /k "cd /d !ROOT!\frontend && echo Frontend starting on http://localhost:5173 && npm run dev:compat"
 
 echo Waiting for frontend to start...
 timeout /t 5 /nobreak >nul
@@ -166,3 +166,4 @@ echo.
 start http://localhost:5173
 
 pause
+popd
