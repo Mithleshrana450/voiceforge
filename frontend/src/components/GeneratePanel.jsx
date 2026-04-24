@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import AudioPlayer from './AudioPlayer';
-import WaveformBars from './waveformBars';
+import WaveformBars from "./WaveformBars";
 import { generateVoice } from '../hooks/useApi';
 import { toast } from './Toast';
 
