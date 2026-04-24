@@ -6,6 +6,8 @@ import GenerationHistory from './components/GenerationHistory';
 import ToastProvider, { toast } from './components/Toast';
 import { getVoices, deleteVoice } from './hooks/useApi';
 
+// const BASE_URL = "https://voiceforge-backend-aqey.onrender.com";
+const BASE_URL = import.meta.env.VITE_API_URL;
 const App = () => {
     const [voices, setVoices] = useState([]);
     const [selectedVoiceId, setSelectedVoiceId] = useState(null);

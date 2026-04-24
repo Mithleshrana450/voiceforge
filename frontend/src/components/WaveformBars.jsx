@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-const WaveformBars = ({ active=false, count=12, color='var(--accent)', height=32 }) => (
+const waveformBars = ({ active=false, count=12, color='var(--accent)', height=32 }) => (
   <div style={{ display:'flex', alignItems:'center', gap:'3px', height:`${height}px` }}>
     {Array.from({length:count}).map((_,i) => (
       <div key={i} style={{

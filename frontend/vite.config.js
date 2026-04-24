@@ -6,8 +6,9 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': { target: 'http://localhost:3001', changeOrigin: true },
-      '/generated': { target: 'http://localhost:3001', changeOrigin: true }
+      '/api': { target: 'https://voiceforge-backend-aqey.onrender.com', changeOrigin: true },
+      '/generated': { target: 'https://voiceforge-backend-aqey.onrender.com', changeOrigin: true }
+        
     }
   }
 })
