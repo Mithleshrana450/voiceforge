@@ -7,6 +7,9 @@ const path = require('path');
 const fs = require('fs');
 
 const voiceRoutes = require('./routes/voice');
+const authRoutes = require('./routes/auth');
+const paymentRoutes = require('./routes/payment');
+const usageRoutes = require('./routes/usage');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -59,6 +62,9 @@ const basicAuth = (req, res, next) => {
 
 // Routes
 app.use('/api', basicAuth, voiceRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/payment', paymentRoutes);
+app.use('/api/usage', usageRoutes);
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));

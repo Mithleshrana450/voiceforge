@@ -1,68 +1,82 @@
+// src/context/AuthContext.jsx
+// ─────────────────────────────────────────────────────────────
+//  Global Auth State powered by Firebase
+//  Wraps entire app - provides user, loading, plan, usage
+// ─────────────────────────────────────────────────────────────
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { onAuthChange, getUserDoc, PLAN_LIMITS } from '../firebase/authService';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [firebaseUser, setFirebaseUser] = useState(null); // Firebase Auth user
+  const [userDoc,      setUserDoc]      = useState(null); // Firestore user document
+  const [loading,      setLoading]      = useState(true);
 
   useEffect(() => {
-    // Handle Google OAuth callback params in URL
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    const name = params.get('name');
-    const email = params.get('email');
-    const plan = params.get('plan');
-    const error = params.get('error');
+    // Listen to Firebase auth state changes
+    const unsubscribe = onAuthChange(async (fbUser) => {
+      setFirebaseUser(fbUser);
 
-    if (token && name && email) {
-      const userData = { id: Date.now().toString(), name: decodeURIComponent(name), email: decodeURIComponent(email), plan: plan || 'free', token, createdAt: new Date().toISOString() };
-      setUser(userData);
-      localStorage.setItem('vf_user', JSON.stringify(userData));
-      // Clean URL
-      window.history.replaceState({}, '', '/');
-      setLoading(false);
-      return;
-    }
-
-    if (error) {
-      console.warn('Auth error:', error);
-      window.history.replaceState({}, '', '/');
-    }
-
-    // Load from localStorage
-    const stored = localStorage.getItem('vf_user');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        // Verify token is still valid
-        setUser(parsed);
-      } catch (_) {
-        localStorage.removeItem('vf_user');
+      if (fbUser) {
+        try {
+          const doc = await getUserDoc(fbUser.uid);
+          setUserDoc(doc);
+        } catch (err) {
+          console.error('Failed to load user document:', err);
+        }
+      } else {
+        setUserDoc(null);
       }
-    }
-    setLoading(false);
+
+      setLoading(false);
+    });
+
+    return () => unsubscribe(); // cleanup on unmount
   }, []);
 
-  const login = (userData, token) => {
-    const u = { ...userData, token };
-    setUser(u);
-    localStorage.setItem('vf_user', JSON.stringify(u));
+  // Refresh user document from Firestore (call after plan upgrade etc.)
+  const refreshUserDoc = async () => {
+    if (!firebaseUser) return;
+    try {
+      const doc = await getUserDoc(firebaseUser.uid);
+      setUserDoc(doc);
+    } catch (err) {
+      console.error('Failed to refresh user document:', err);
+    }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('vf_user');
-  };
+  // Shorthand helpers
+  const plan      = userDoc?.plan || 'free';
+  const limits    = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+  const isLoggedIn = !!firebaseUser;
 
-  const updateUser = (updates) => {
-    const u = { ...user, ...updates };
-    setUser(u);
-    localStorage.setItem('vf_user', JSON.stringify(u));
-  };
+  // Combined user object for easy access in components
+  const user = firebaseUser ? {
+    uid:           firebaseUser.uid,
+    id:            firebaseUser.uid,
+    name:          firebaseUser.displayName || userDoc?.name || 'User',
+    email:         firebaseUser.email,
+    photoURL:      firebaseUser.photoURL,
+    emailVerified: firebaseUser.emailVerified,
+    plan,
+    limits,
+    createdAt:     userDoc?.createdAt,
+    usage:         userDoc?.usage || { generations: 0 },
+  } : null;
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, updateUser }}>
+    <AuthContext.Provider value={{
+      user,
+      firebaseUser,
+      userDoc,
+      loading,
+      isLoggedIn,
+      plan,
+      limits,
+      refreshUserDoc,
+    }}>
       {children}
     </AuthContext.Provider>
   );
@@ -70,7 +84,7 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
+  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
   return ctx;
 };
 
