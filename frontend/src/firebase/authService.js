@@ -41,6 +41,7 @@ export const getUserDoc = async (uid) => {
 };
 
 export const signUpWithEmail = async (name, email, password) => {
+  if (!auth) throw new Error('Firebase is not configured. Please add VITE_FIREBASE_API_KEY to your environment variables.');
   const { user } = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(user, { displayName: name });
   
@@ -56,9 +57,13 @@ export const signUpWithEmail = async (name, email, password) => {
   return user;
 };
 
-export const signInWithEmail = (email, password) => signInWithEmailAndPassword(auth, email, password);
+export const signInWithEmail = (email, password) => {
+  if (!auth) throw new Error('Firebase is not configured. Please add VITE_FIREBASE_API_KEY to your environment variables.');
+  return signInWithEmailAndPassword(auth, email, password);
+};
 
 export const signInWithGoogle = async () => {
+  if (!auth) throw new Error('Firebase is not configured. Please add VITE_FIREBASE_API_KEY to your environment variables.');
   const { user } = await signInWithPopup(auth, googleProvider);
   
   // Check if user doc exists, if not create it
