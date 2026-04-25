@@ -12,8 +12,21 @@ const firebaseConfig = {
     measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// Safety check: Ensure environment variables are loaded
+const isConfigValid = !!firebaseConfig.apiKey;
+
+let app;
+try {
+    if (!isConfigValid) {
+        console.error("❌ Firebase API Key is missing! Add VITE_FIREBASE_API_KEY to your environment variables.");
+    }
+    app = initializeApp(firebaseConfig);
+} catch (err) {
+    console.error("❌ Firebase initialization failed:", err.message);
+    app = {}; // Fallback to prevent crash during import
+}
+
+export const auth = isConfigValid ? getAuth(app) : null;
+export const db = isConfigValid ? getFirestore(app) : null;
 export const googleProvider = new GoogleAuthProvider();
 export default app;

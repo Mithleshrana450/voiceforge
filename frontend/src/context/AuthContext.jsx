@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [loading,      setLoading]      = useState(true);
 
   useEffect(() => {
-    // Listen to Firebase auth state changes
+    // If auth is not available (missing env keys), stop loading
     const unsubscribe = onAuthChange(async (fbUser) => {
       setFirebaseUser(fbUser);
 

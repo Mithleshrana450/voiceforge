@@ -22,9 +22,16 @@ export const PLAN_LIMITS = {
   business: { generations: Infinity, voices: Infinity, chars: 2500 },
 };
 
-export const onAuthChange = (callback) => onAuthStateChanged(auth, callback);
+export const onAuthChange = (callback) => {
+  if (!auth) {
+    callback(null);
+    return () => {}; 
+  }
+  return onAuthStateChanged(auth, callback);
+};
 
 export const getUserDoc = async (uid) => {
+  if (!db) return null;
   const docRef = doc(db, "users", uid);
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
