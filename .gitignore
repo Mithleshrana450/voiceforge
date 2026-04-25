@@ -10,7 +10,6 @@ backend/uploads/
 .env
 backend/.env
 frontend/.env
-frontend/src/firebase/config.js
 
 # IDE/editor files
 .idea/
