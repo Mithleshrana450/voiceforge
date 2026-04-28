@@ -6,7 +6,6 @@ export const uploadVoice = async (file, name, onProgress) => {
   form.append('audio', file);
   form.append('name', name || file.name.replace(/\.[^/.]+$/, ''));
   const { data } = await api.post('/upload-voice', form, {
-    headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: e => onProgress?.(Math.round((e.loaded / e.total) * 100)),
   });
   return data;
