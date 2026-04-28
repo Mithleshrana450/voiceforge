@@ -1,31 +1,31 @@
-import { 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signInWithPopup, 
-  signOut, 
-  sendPasswordResetEmail, 
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  sendPasswordResetEmail,
   onAuthStateChanged,
   updateProfile
 } from "firebase/auth";
-import { 
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc, 
-  serverTimestamp 
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  serverTimestamp
 } from "firebase/firestore";
 import { auth, db, googleProvider } from "./config";
 
 export const PLAN_LIMITS = {
-  free: { generations: 5, voices: 1, chars: 500 },
-  pro: { generations: 500, voices: 5, chars: 2500 },
+  free: { generations: 50, voices: 10, chars: 1000 },
+  pro: { generations: 500, voices: 50, chars: 2500 },
   business: { generations: Infinity, voices: Infinity, chars: 2500 },
 };
 
 export const onAuthChange = (callback) => {
   if (!auth) {
     callback(null);
-    return () => {}; 
+    return () => { };
   }
   return onAuthStateChanged(auth, callback);
 };
@@ -44,7 +44,7 @@ export const signUpWithEmail = async (name, email, password) => {
   if (!auth) throw new Error('Firebase is not configured. Please add VITE_FIREBASE_API_KEY to your environment variables.');
   const { user } = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(user, { displayName: name });
-  
+
   // Create user doc in Firestore
   await setDoc(doc(db, "users", user.uid), {
     name,
@@ -53,7 +53,7 @@ export const signUpWithEmail = async (name, email, password) => {
     createdAt: serverTimestamp(),
     usage: { generations: 0 }
   });
-  
+
   return user;
 };
 
@@ -65,11 +65,11 @@ export const signInWithEmail = (email, password) => {
 export const signInWithGoogle = async () => {
   if (!auth) throw new Error('Firebase is not configured. Please add VITE_FIREBASE_API_KEY to your environment variables.');
   const { user } = await signInWithPopup(auth, googleProvider);
-  
+
   // Check if user doc exists, if not create it
   const docRef = doc(db, "users", user.uid);
   const docSnap = await getDoc(docRef);
-  
+
   if (!docSnap.exists()) {
     await setDoc(docRef, {
       name: user.displayName || 'User',
@@ -79,7 +79,7 @@ export const signInWithGoogle = async () => {
       usage: { generations: 0 }
     });
   }
-  
+
   return user;
 };
 

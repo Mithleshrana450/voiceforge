@@ -77,5 +77,6 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
     console.log(`🎙️  VoiceClone API running on http://localhost:${PORT}`);
+    console.log(`   Limit check:`, require('./db').getPlanLimits('free').voices);
     console.log(`   ElevenLabs key: ${process.env.ELEVENLABS_API_KEY ? '✅ set' : '❌ missing'}`);
 });

@@ -22,10 +22,18 @@ const GeneratePanel = ({ voices, selectedVoiceId, onSelectVoice, onGenerated }) 
     if (text.length > MAX) return setError('Text too long.');
     setError(null); setLoading(true); setResult(null);
     try {
-      const data = await generateVoice({ voiceProfileId:selectedVoiceId, text:text.trim(), stability, similarityBoost:similarity, style });
+      const voice = voices.find(v => v.id === selectedVoiceId);
+      const data = await generateVoice({
+        voiceProfileId: selectedVoiceId,
+        elevenLabsVoiceId: voice?.elevenLabsVoiceId,
+        demo: voice?.demo,
+        text: text.trim(),
+        stability,
+        similarityBoost: similarity,
+        style
+      });
       setResult(data);
-      const voice = voices.find(v=>v.id===selectedVoiceId);
-      onGenerated?.({ id:Date.now(), timestamp:new Date().toISOString(), voiceName:voice?.name||'Unknown', text:text.trim(), audioUrl:data.audioUrl, filename:data.filename, demo:data.demo });
+      onGenerated?.({ id: Date.now(), timestamp: new Date().toISOString(), voiceName: voice?.name || 'Unknown', text: text.trim(), audioUrl: data.audioUrl, filename: data.filename, demo: data.demo });
       if (!data.demo) toast.success('Audio generated!');
     } catch (err) {
       const msg = err.response?.data?.error || err.message || 'Generation failed';

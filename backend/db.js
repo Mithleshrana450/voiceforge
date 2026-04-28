@@ -9,9 +9,9 @@ const sessions = new Map();    // token → userId
 const usageStore = new Map();  // userId → { generations, month }
 
 const PLAN_LIMITS = {
-    free: { generations: 5, voices: 1 },
-    pro: { generations: 500, voices: 5 },
-    business: { generations: Infinity, voices: Infinity },
+    free: { generations: 50, voices: 10, chars: 1000 },
+    pro: { generations: 500, voices: 50, chars: 2500 },
+    business: { generations: Infinity, voices: Infinity, chars: 2500 },
 };
 
 module.exports = {

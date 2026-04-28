@@ -54,7 +54,7 @@ router.post('/upload-voice', optionalAuth, upload.single('audio'), async (req, r
     // Check voice profile limit
     const existing = Array.from(voiceProfiles.values()).filter(v => v.ownerKey === key);
     if (limits.voices !== Infinity && existing.length >= limits.voices) {
-        fs.unlink(req.file.path, () => { });
+        if (req.file?.path) fs.unlink(req.file.path, () => { });
         return res.status(403).json({
             error: `Your ${plan} plan allows ${limits.voices} voice profile(s). Upgrade to add more.`,
             limitReached: true,
@@ -118,7 +118,17 @@ router.post('/generate-voice', optionalAuth, async (req, res, next) => {
     }
 
     const key = getUserKey(req);
-    const profile = voiceProfiles.get(voiceProfileId);
+    let profile = voiceProfiles.get(voiceProfileId);
+
+    // If not found in memory (e.g. server restart), use provided data from frontend (Firestore)
+    if (!profile && req.body.elevenLabsVoiceId) {
+        profile = {
+            elevenLabsVoiceId: req.body.elevenLabsVoiceId,
+            demo: req.body.demo ?? false,
+            ownerKey: key
+        };
+    }
+
     if (!profile) return res.status(404).json({ error: 'Voice profile not found' });
     if (profile.ownerKey !== key) return res.status(403).json({ error: 'Not your voice profile' });
 

@@ -11,8 +11,8 @@ export const uploadVoice = async (file, name, onProgress) => {
   });
   return data;
 };
-export const generateVoice = async ({ voiceProfileId, text, stability, similarityBoost, style }) => {
-  const { data } = await api.post('/generate-voice', { voiceProfileId, text, stability, similarityBoost, style });
+export const generateVoice = async ({ voiceProfileId, elevenLabsVoiceId, demo, text, stability, similarityBoost, style }) => {
+  const { data } = await api.post('/generate-voice', { voiceProfileId, elevenLabsVoiceId, demo, text, stability, similarityBoost, style });
   return data;
 };
 export const getVoices = async () => {

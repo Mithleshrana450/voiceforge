@@ -26,13 +26,13 @@ export const PricingCards = ({ onGetStarted, currentPlan, onUpgrade }) => {
     {
       name: 'Free', key: 'free', price: '₹0', period: 'forever', color: 'var(--text2)',
       desc: 'Perfect for trying out VoiceForge',
-      features: ['5 generations/month', '1 voice profile', '500 chars per generation', 'Standard quality', 'Email support'],
+      features: ['50 generations/month', '10 voice profiles', '1000 chars per generation'],
       cta: 'Get started free', highlight: false,
     },
     {
       name: 'Pro', key: 'pro', price: '₹499', period: '/month', color: 'var(--accent2)',
       desc: 'For serious creators and professionals',
-      features: ['500 generations/month', '5 voice profiles', '2500 chars per generation', 'HD quality output', 'Priority support', 'Download MP3/WAV', 'API access'],
+      features: ['500 generations/month', '50 voice profiles', '2500 chars per generation', 'HD quality output', 'Priority support', 'Download MP3/WAV', 'API access'],
       cta: 'Upgrade to Pro', highlight: true,
     },
     {
